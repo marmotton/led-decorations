@@ -17,6 +17,7 @@ The resistor removes spikes (much cleaner signal), a slightly different value sh
 ## Outdoor lights
 The LED strip is installed as shown in the picture below. The vertical segments (25 LEDs) are used as a matrix, the horizontal segments (3 LEDs) are currently not used.
 I used a spreadsheet, exported the matrices as csv and did some copy-pasting to define the ledmap.hpp content.
+
 ![outdoor LEDs matrix](electronics/leds-outdoor.png)
 
 ## Christmas tree
