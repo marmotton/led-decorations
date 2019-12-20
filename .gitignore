@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# PlatformIO
+.pio
+.vscode
+
+# Files with credentials etc.
+config.hpp
+platformio.ini
