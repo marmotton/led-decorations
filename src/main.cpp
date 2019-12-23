@@ -12,6 +12,7 @@
 #include "rgbhsv.hpp"
 
 #include "RunningDots.hpp"
+#include "ScrollingPicture.hpp"
 
 #include "ledmap.hpp"
 
@@ -24,9 +25,15 @@ CRGB leds[NUM_LEDS];
 
 std::vector< std::vector<CRGB> > ledMatrix(LED_MATRIX_ROWS, std::vector<CRGB>(LED_MATRIX_COLS, CRGB::Black) );
 
+#define N_ANIMATIONS 2 // Number of available animations
 RunningDots runningDots(ledMatrix, 5, 2);
+ScrollingPicture scrollingPicture(ledMatrix);
 
 bool power_is_on = true;
+bool change_image_request = false;
+bool change_animation_request = false;
+int current_animation = 0;
+int framerate = DEFAULT_FRAMES_PER_SECOND;
 RgbColor requested_color;
 
 void mqttconnect() {
@@ -39,6 +46,8 @@ void mqttconnect() {
         // Subscribe to the topics with QoS 1
         mqtt.subscribe(MQTT_COLOR_TOPIC, 1);
         mqtt.subscribe(MQTT_POWER_TOPIC, 1);
+        mqtt.subscribe(MQTT_CHNGIMG_TOPIC, 1);
+        mqtt.subscribe(MQTT_CHNGANIM_TOPIC, 1);
 
         // Update status, message is retained
         mqtt.publish(MQTT_STATUS_TOPIC, "online", true);
@@ -72,6 +81,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
         else if ( payload_str.compare("OFF") == 0 ){
             power_is_on = false;
         }
+    }
+
+    if ( topic_str.compare(MQTT_CHNGIMG_TOPIC) == 0 ) {
+        change_image_request = true;
+    }
+
+    if ( topic_str.compare(MQTT_CHNGANIM_TOPIC) == 0 ) {
+        change_animation_request = true;
     }
 }
 
@@ -114,6 +131,9 @@ void setup() {
     requested_color.r = 0x9A;
     requested_color.g = 0x03;
     requested_color.b = 0xAC;
+
+    // Load a picture
+    scrollingPicture.loadNextBMP();
 }
 
 void loop() {
@@ -132,13 +152,35 @@ void loop() {
         leds[i] = CRGB::Black;
     }
 
+    // Process requests
+    if ( change_image_request ) {
+        scrollingPicture.loadNextBMP();
+        change_image_request = false;
+    }
+
+    if ( change_animation_request ) {
+        current_animation = current_animation < N_ANIMATIONS-1 ? current_animation+1 : 0;
+        change_animation_request = false;
+    }
+
     // Only compute animations if power is set to ON
     if ( power_is_on ) {
-        // Compute animation step
         int hue = RgbToHsv(requested_color).h;
-        runningDots.setHue( hue );
-        runningDots.nextFrame();
 
+        // Compute animation step
+        switch ( current_animation ) {
+            case 0:
+                runningDots.setHue( hue );
+                runningDots.nextFrame();
+                framerate = FRAMES_PER_SECOND_RUNNINGDOTS;
+                break;
+
+            case 1:
+                scrollingPicture.nextFrame();
+                framerate = FRAMES_PER_SECOND_SCROLLINGPICTURE;
+                break;
+        }
+        
         // Map leds
         for (uint row = 0; row < ledMatrix.size(); row++) {
             for (uint col = 0; col < ledMatrix[row].size(); col++) {
@@ -147,10 +189,22 @@ void loop() {
             }
         }
     }
-    
+
+// Used for testing without a LED strip (displays the last column on the serial port)
+/*
+    for ( auto row : ledMatrix ) {
+        if ( row[14].getLuma() > 10 ){ 
+            Serial.print(".");
+        }
+        else {
+            Serial.print(" ");
+        }
+    }
+    Serial.println();
+*/
     FastLED.show();
 
-    long neededDelay = (1000 / FRAMES_PER_SECOND) - (millis() - loopStartMillis);
+    long neededDelay = (1000 / framerate) - (millis() - loopStartMillis);
     if ( neededDelay > 0 ) {
         FastLED.delay( neededDelay );
     }

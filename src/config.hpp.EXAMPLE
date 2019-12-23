@@ -25,7 +25,9 @@
 #define COLOR_ORDER GRB
 #define NUM_LEDS 451
 #define DEFAULT_BRIGHTNESS 100 // Range 0-255
-#define FRAMES_PER_SECOND 24
+#define DEFAULT_FRAMES_PER_SECOND 24
+#define FRAMES_PER_SECOND_RUNNINGDOTS 24
+#define FRAMES_PER_SECOND_SCROLLINGPICTURE 10
 #define MAX_REFRESH_RATE 60 // Avoids flickering, choose a value that ensures a reset time of around 300us. 80LEDs: 300Hz, 150LEDs: 180Hz, 450LEDs: 60Hz.
 
 #define LED_MATRIX_ROWS 25
