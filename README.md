@@ -20,6 +20,13 @@ I used a spreadsheet, exported the matrices as csv and did some copy-pasting to 
 
 ![outdoor LEDs matrix](electronics/leds-outdoor.png)
 
+## Bitmap files (ScrollingPicture animation)
+The .bmp files displayed by the ScrollingPicture animation can be generated with the GIMP. Its height must match the height of the pixel matrix. The width does not matter.
+The file must be saved using these options:
+![GIMP bmp file saving options](images/gimp_bmp_config.png)
+
+These files must then be uploaded to SPIFFS. Place them in the "data" folder and execute the PlatformIO task "Upload File System image".
+
 ## Christmas tree
 This code can also be used for a 3D printed christmas tree: https://www.youmagine.com/designs/led-christmas-tree
 
