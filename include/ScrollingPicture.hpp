@@ -167,6 +167,13 @@ public:
 
             // Copy the picture to the LED matrix at the correct position
             std::copy(picture_begin_it, picture_end_it, led_begin_it);
+
+            // Add some sparkling
+            for ( CRGB &led : ledmatrix[rownum] ) {
+                if ( random16() < 2000 ) {
+                    led = CRGB::White;
+                }
+            }
         }
     }
 };

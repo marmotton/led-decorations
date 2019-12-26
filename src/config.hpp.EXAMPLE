@@ -18,6 +18,9 @@
 #define MQTT_STATUS_TOPIC     MQTT_ROOT_TOPIC "/status"
 #define MQTT_COLOR_TOPIC      MQTT_ROOT_TOPIC "/color"
 #define MQTT_POWER_TOPIC      MQTT_ROOT_TOPIC "/power"
+#define MQTT_CHNGANIM_TOPIC   MQTT_ROOT_TOPIC "/change_animation"
+#define MQTT_CHNGIMG_TOPIC    MQTT_ROOT_TOPIC "/change_image"
+#define MQTT_CURRENT_ANIM_TOPIC MQTT_ROOT_TOPIC "/current_animation"
 
 #define CHIPSET WS2812B
 #define FASTLED_ESP8266_NODEMCU_PIN_ORDER

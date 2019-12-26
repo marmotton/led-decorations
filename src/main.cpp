@@ -153,14 +153,31 @@ void loop() {
     }
 
     // Process requests
+    bool send_update = false;
     if ( change_image_request ) {
         scrollingPicture.loadNextBMP();
         change_image_request = false;
+        send_update = true;
     }
 
     if ( change_animation_request ) {
         current_animation = current_animation < N_ANIMATIONS-1 ? current_animation+1 : 0;
         change_animation_request = false;
+        send_update = true;
+    }
+
+    if ( send_update ) {
+        String message = "";
+        switch ( current_animation ) {
+            case 0 :
+                message = "Points: RGB=" + String(requested_color.r) + "," + String(requested_color.g) + "," + String(requested_color.b);
+                break;
+            case 1 :
+                message = "Image: " + String( scrollingPicture.getCurrentBmpFilename().c_str() );
+                break;
+        }
+        mqtt.publish(MQTT_CURRENT_ANIM_TOPIC, message.c_str());
+        send_update = false;
     }
 
     // Only compute animations if power is set to ON
